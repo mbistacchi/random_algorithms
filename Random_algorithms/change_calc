@@ -1,0 +1,49 @@
+# -*- coding: utf-8 -*-
+import numpy as np
+
+def change_calc_1(cost, given):
+    """ Nice, pythonic algorithm to find correct change for an item cost and given note
+    Input in £xx.yy, converts internally to just work in pence.
+    Assumes unlimited coins to give back
+    """ 
+    coin_vals = [200, 100, 50, 20, 10, 5, 2, 1]
+    coins = np.zeros(len(coin_vals), dtype=int)
+    cost = cost * 100 # pence
+    given = given * 100
+    left = given - cost
+    
+    for i, val in enumerate(coin_vals):
+        coins[i] = left // val
+        left = left % val
+        
+    return coins
+
+def change_calc_2(cost, given):
+    """ Nasty, dumb, but interesting method using recursion """
+    coin_vals = [200, 100, 50, 20, 10, 5, 2, 1]
+    coins = np.zeros(len(coin_vals), dtype=int)
+    cost = cost * 100
+    given = given * 100
+    left = given - cost
+    
+    def _calc(left):
+        for i, c in enumerate(coin_vals):
+            if left == 0:
+                return coins
+            
+            elif c > left:
+                continue
+            
+            else:
+                coins[i] += 1
+                left -= c
+                return _calc(left)
+     
+        return coins
+    return _calc(left)       
+    
+# test method 2 knowing method 1 is correct
+costs  = np.arange(0, 20, 0.01)
+for cost in costs:
+    correct = change_calc_1(cost, 20) # give £20 note
+    np.testing.assert_array_equal(change_calc_2(cost, 20), change_calc_1(cost, 20))
